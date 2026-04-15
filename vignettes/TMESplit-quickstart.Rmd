@@ -1,0 +1,81 @@
+---
+title: "TMESplit quickstart"
+author: "Kate Petrenko"
+date: "`r Sys.Date()`"
+output:
+    BiocStyle::html_document:
+        toc: true
+vignette: >
+    %\VignetteIndexEntry{TMESplit quickstart}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+# Overview
+
+`TMESplit` provides formal statistical testing for whether cell-type
+coordination structure differs between biological groups (e.g. tumour vs
+normal, responder vs non-responder). It decomposes a patient × cell-type
+composition matrix into shared and group-specific non-negative programs,
+and returns a three-level hierarchy of p-values (global, per-group,
+per-program).
+
+The algorithm is implemented in Python (`TMESplitpy`) and called from R
+via [basilisk](https://bioconductor.org/packages/basilisk), which
+provisions a sandboxed conda environment automatically on first use.
+
+# Status
+
+This release (`0.99.0`) is a **pre-release scaffold**. The API surface
+is in place but the algorithmic bodies land in Phase 3.2b. Loading the
+package and inspecting the S4 class work today:
+
+```{r}
+library(TMESplit)
+
+res <- new("TMESplitResult")
+res
+```
+
+The toy fixture used for cross-language parity tests ships in
+`inst/extdata`:
+
+```{r}
+f <- system.file("extdata", "toy_composition.rds", package = "TMESplit")
+toy <- readRDS(f)
+vapply(toy, dim, integer(2))
+```
+
+# Planned API
+
+```r
+library(TMESplit)
+library(SummarizedExperiment)
+
+# (A) SummarizedExperiment (cell-types x patients)
+res <- tmesplit(se, group_col = "condition",
+                beta_loss = 0.5, n_perm = 2000)
+
+# (B) SingleCellExperiment: aggregate first
+comp <- aggregateToComposition(sce,
+                               patient_col = "patient_id",
+                               celltype_col = "celltype_L2")
+res <- tmesplit(comp, group_col = "condition")
+
+# (C) Raw matrix + group vector
+res <- tmesplit(X, group = group_vec, beta_loss = 0.5)
+
+programs(res)           # per-program DataFrame + BH-FDR
+pvalue(res, "global")
+plotPrograms(res)       # ComplexHeatmap
+```
+
+# Session info
+
+```{r}
+sessionInfo()
+```

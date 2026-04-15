@@ -1,0 +1,52 @@
+Package: TMESplit
+Title: Formal Testing of Group-Specific Multicellular Coordination Programs
+Version: 0.99.0
+Authors@R: c(
+    person("Kate", "Petrenko", email = "katepetrenko.y@gmail.com",
+           role = c("aut", "cre")))
+Description: Detects and characterizes group-specific multicellular
+    coordination programs from cell-type composition data, with formal
+    statistical testing for whether coordination structure differs between
+    biological groups. Implements a coupled NMF decomposition into shared and
+    group-specific programs, a three-level hierarchical permutation test
+    (global, per-group, per-program), and rank selection via parallel
+    analysis plus reconstruction improvement. Wraps the 'TMESplitpy' Python
+    implementation via 'basilisk'.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+biocViews:
+    SingleCell,
+    Software,
+    StatisticalMethod,
+    DifferentialExpression,
+    Clustering,
+    GeneExpression,
+    Transcriptomics
+Depends:
+    R (>= 4.4.0)
+Imports:
+    methods,
+    basilisk,
+    SummarizedExperiment,
+    SingleCellExperiment,
+    S4Vectors,
+    utils
+Suggests:
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown,
+    BiocStyle,
+    tibble,
+    reticulate,
+    BiocParallel,
+    ggplot2,
+    ComplexHeatmap,
+    grid,
+    BiocCheck
+SystemRequirements: Python (>= 3.10)
+VignetteBuilder: knitr
+URL: https://github.com/petrenkokate/TMESplit
+BugReports: https://github.com/petrenkokate/TMESplit/issues
+Config/testthat/edition: 3
