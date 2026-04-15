@@ -27,6 +27,7 @@
 #' res <- new("TMESplitResult")
 #' isVirtualClass("TMESplitResult")
 #' slotNames(res)
+#' @aliases TMESplitResult
 #' @export
 setClass(
     "TMESplitResult",

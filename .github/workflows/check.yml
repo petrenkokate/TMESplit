@@ -50,12 +50,14 @@ jobs:
             any::knitr
             any::testthat
             any::tibble
+            any::ggplot2
             bioc::BiocCheck
             bioc::BiocStyle
             bioc::SummarizedExperiment
             bioc::SingleCellExperiment
             bioc::S4Vectors
             bioc::basilisk
+            bioc::ComplexHeatmap
           dependencies: '"hard"'
           needs: check
 

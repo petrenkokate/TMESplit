@@ -3,6 +3,7 @@
 \docType{class}
 \name{TMESplitResult-class}
 \alias{TMESplitResult-class}
+\alias{TMESplitResult}
 \title{TMESplitResult S4 class}
 \value{
 An S4 object of class \code{TMESplitResult}. Construct an empty
