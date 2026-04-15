@@ -46,7 +46,12 @@ jobs:
           extra-packages: |
             any::rcmdcheck
             any::BiocManager
+            any::rmarkdown
+            any::knitr
+            any::testthat
+            any::tibble
             bioc::BiocCheck
+            bioc::BiocStyle
             bioc::SummarizedExperiment
             bioc::SingleCellExperiment
             bioc::S4Vectors
