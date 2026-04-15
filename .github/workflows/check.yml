@@ -23,6 +23,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install OpenMPI (ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libopenmpi-dev openmpi-bin
+
+      - name: Install OpenMPI (macos)
+        if: runner.os == 'macOS'
+        run: |
+          brew install open-mpi
+
       - uses: r-lib/actions/setup-r@v2
         with:
           r-version: ${{ matrix.config.r }}
@@ -39,9 +50,8 @@ jobs:
             bioc::SummarizedExperiment
             bioc::SingleCellExperiment
             bioc::S4Vectors
-            bioc::BiocParallel
             bioc::basilisk
-            bioc::ComplexHeatmap
+          dependencies: '"hard"'
           needs: check
 
       - uses: r-lib/actions/check-r-package@v2
