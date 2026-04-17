@@ -1,0 +1,188 @@
+---
+title: "TMESplit analysis walkthrough"
+author: "Kate Petrenko"
+date: "`r Sys.Date()`"
+output:
+    BiocStyle::html_document:
+        toc: true
+vignette: >
+    %\VignetteIndexEntry{TMESplit analysis walkthrough}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+RUN_PYTHON <- requireNamespace("reticulate", quietly = TRUE) &&
+    tryCatch({
+        proc <- basilisk::basiliskStart(TMESplit:::.tmesplit_env)
+        basilisk::basiliskStop(proc)
+        TRUE
+    }, error = function(e) FALSE)
+```
+
+# Introduction
+
+This vignette walks through a complete TMESplit analysis on simulated
+data that mimics a typical scRNA-seq experiment: two biological groups
+(e.g., responder vs non-responder), shared multicellular programs, and
+one group-specific program.
+
+# Simulating realistic composition data
+
+```{r simulate, eval = RUN_PYTHON}
+set.seed(123)
+n_patients <- 30
+n_celltypes <- 20
+
+ct_names <- paste0("CellType_", seq_len(n_celltypes))
+base_props <- rexp(n_celltypes, rate = 1)
+base_props <- base_props / sum(base_props)
+
+simulate_group <- function(n, base, noise_sd = 0.3) {
+    mat <- matrix(NA, nrow = n, ncol = length(base))
+    for (i in seq_len(n)) {
+        log_props <- log(base + 1e-6) + rnorm(length(base), sd = noise_sd)
+        props <- exp(log_props)
+        mat[i, ] <- props / sum(props)
+    }
+    colnames(mat) <- ct_names
+    rownames(mat) <- paste0("P", seq_len(n))
+    mat
+}
+
+group_A <- simulate_group(n_patients, base_props)
+
+base_B <- base_props
+base_B[1:3] <- base_B[1:3] * 2.5
+base_B[4:5] <- base_B[4:5] * 0.3
+base_B <- base_B / sum(base_B)
+group_B <- simulate_group(n_patients, base_B)
+
+mat <- rbind(group_A, group_B)
+rownames(mat) <- paste0("P", seq_len(2 * n_patients))
+group <- rep(c("GroupA", "GroupB"), each = n_patients)
+```
+
+# Running TMESplit
+
+```{r run, eval = RUN_PYTHON}
+library(TMESplit)
+
+res <- tmesplit(mat, group = group,
+                beta_loss = 0.5,
+                n_perm = 500,
+                n_runs = 5,
+                seed = 42,
+                verbose = FALSE)
+res
+```
+
+# Interpreting results
+
+## Three levels of significance
+
+```{r levels, eval = RUN_PYTHON}
+cat("Level 1 (global):", pvalue(res, "global"), "\n")
+cat("Level 2 (per-group):\n")
+print(pvalue(res, "group"))
+```
+
+The hierarchical testing follows closed-testing discipline: Level 2
+results are only interpretable if Level 1 is significant, and Level 3
+only if Level 2 is significant for that group.
+
+## Program structure
+
+```{r programs-table, eval = RUN_PYTHON}
+programs(res)
+```
+
+## Shared programs
+
+```{r w-shared, eval = RUN_PYTHON}
+W_sh <- wShared(res)
+cat("Shared programs:", ncol(W_sh), "\n")
+cat("Cell types:", nrow(W_sh), "\n")
+```
+
+## Group-specific programs
+
+```{r w-specific, eval = RUN_PYTHON}
+W_sp <- wSpecific(res)
+for (g in names(W_sp)) {
+    cat(g, ": ", ncol(W_sp[[g]]), " specific program(s)\n", sep = "")
+}
+```
+
+# Visualization gallery
+
+## Program loadings
+
+```{r viz-programs, eval = RUN_PYTHON, fig.width = 10, fig.height = 8}
+plotPrograms(res)
+```
+
+## Patient activities
+
+```{r viz-activities, eval = RUN_PYTHON, fig.width = 8, fig.height = 5}
+plotActivities(res)
+```
+
+## Significance overview
+
+```{r viz-significance, eval = RUN_PYTHON, fig.width = 7, fig.height = 4}
+plotSignificance(res)
+```
+
+## Cell-type network
+
+```{r viz-network, eval = RUN_PYTHON, fig.width = 7, fig.height = 7}
+plotNetwork(res)
+```
+
+# Parameter guidance
+
+| Parameter | Default | When to change |
+|-----------|---------|---------------|
+| `beta_loss` | 0.5 | Rarely. 0.5 (Itakura-Saito) suits compositional data. Use 2.0 (Frobenius) only if data is not proportional. |
+| `n_perm` | 2000 | Lower (100-500) for exploration; 2000+ for publication. |
+| `n_runs` | 10 | NMF restarts. 10 is robust; increase to 20 if results feel unstable. |
+| `combiners` | "cauchy" | "bonferroni" for conservative; "cauchy" (ACAT) is default and well-calibrated. |
+| `seed` | 42 | Set for reproducibility. |
+
+# Working with SingleCellExperiment
+
+```{r sce-example, eval = RUN_PYTHON}
+library(SingleCellExperiment)
+library(SummarizedExperiment)
+
+n_cells <- 5000
+patients <- sample(paste0("P", 1:20), n_cells, replace = TRUE)
+celltypes <- sample(ct_names[1:10], n_cells, replace = TRUE,
+                    prob = base_props[1:10] / sum(base_props[1:10]))
+counts <- matrix(rpois(n_cells * 50, 5), nrow = 50)
+
+sce <- SingleCellExperiment(
+    assays = list(counts = counts),
+    colData = DataFrame(
+        patient = patients,
+        celltype = celltypes,
+        condition = ifelse(patients %in% paste0("P", 1:10), "Ctrl", "Treat")
+    )
+)
+
+comp <- aggregateToComposition(sce,
+                               patient_col = "patient",
+                               celltype_col = "celltype")
+
+cat("Composition SE:", nrow(comp), "cell types x", ncol(comp), "patients\n")
+cat("Proportions sum to 1:",
+    all(abs(colSums(assay(comp)) - 1) < 1e-10), "\n")
+```
+
+# Session info
+
+```{r}
+sessionInfo()
+```
