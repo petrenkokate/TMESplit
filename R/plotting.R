@@ -68,7 +68,36 @@ setMethod("plotPrograms", "TMESplitResult", function(x, ...) {
 #' @describeIn plotActivities Method for [TMESplitResult].
 #' @export
 setMethod("plotActivities", "TMESplitResult", function(x, ...) {
-    .plot_not_implemented("plotActivities")
+    H <- x@H_fractions
+    group_labels <- x@metadata$group_labels
+    if (is.null(group_labels)) {
+        groups <- x@groups
+        n_per <- nrow(H) %/% length(groups)
+        group_labels <- rep(groups, each = n_per)
+    }
+
+    df <- data.frame(
+        patient = rep(rownames(H), ncol(H)),
+        program = rep(colnames(H), each = nrow(H)),
+        activity = as.vector(H),
+        group = rep(group_labels, ncol(H)),
+        stringsAsFactors = FALSE
+    )
+
+    p <- ggplot2::ggplot(df, ggplot2::aes(x = .data$program,
+                                           y = .data$activity,
+                                           fill = .data$group)) +
+        ggplot2::geom_boxplot(outlier.size = 0.8, alpha = 0.8) +
+        ggplot2::labs(x = "Program", y = "Activity (H fraction)",
+                      title = "Program activity per patient",
+                      fill = "Group") +
+        ggplot2::theme_minimal() +
+        ggplot2::theme(
+            axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
+        )
+
+    print(p)
+    invisible(p)
 })
 
 #' @describeIn plotNetwork Method for [TMESplitResult].

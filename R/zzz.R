@@ -10,7 +10,7 @@
 #' @importFrom SingleCellExperiment SingleCellExperiment
 #' @importFrom ggplot2 ggplot aes geom_boxplot geom_bar geom_segment geom_point
 #'   geom_text geom_hline labs theme_minimal theme element_text element_blank
-#'   coord_equal scale_fill_manual scale_color_manual
+#'   coord_equal scale_fill_manual scale_color_manual .data
 #' @importFrom grid unit
 #' @importClassesFrom S4Vectors DataFrame
 #' @importClassesFrom SummarizedExperiment SummarizedExperiment
