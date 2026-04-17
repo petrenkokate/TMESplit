@@ -29,21 +29,21 @@ Depends:
 Imports:
     methods,
     basilisk,
+    reticulate,
     SummarizedExperiment,
     SingleCellExperiment,
     S4Vectors,
-    utils
+    utils,
+    ggplot2,
+    ComplexHeatmap,
+    grid
 Suggests:
     testthat (>= 3.0.0),
     knitr,
     rmarkdown,
     BiocStyle,
     tibble,
-    reticulate,
     BiocParallel,
-    ggplot2,
-    ComplexHeatmap,
-    grid,
     BiocCheck
 SystemRequirements: Python (>= 3.10)
 VignetteBuilder: knitr
