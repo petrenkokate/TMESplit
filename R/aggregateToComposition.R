@@ -15,6 +15,17 @@ setMethod(
         patients <- as.character(cd[[patient_col]])
         celltypes <- as.character(cd[[celltype_col]])
 
+        if (anyNA(patients) || anyNA(celltypes)) {
+            n_na <- sum(is.na(patients) | is.na(celltypes))
+            warning("Found ", n_na, " cell(s) with NA in '", patient_col,
+                    "' or '", celltype_col,
+                    "' — these cells are excluded from the composition.",
+                    call. = FALSE)
+            keep <- !is.na(patients) & !is.na(celltypes)
+            patients <- patients[keep]
+            celltypes <- celltypes[keep]
+        }
+
         tab <- table(patient = patients, celltype = celltypes)
         props <- tab / rowSums(tab)
         mat <- unclass(t(props))

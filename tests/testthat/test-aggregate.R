@@ -68,3 +68,28 @@ test_that("aggregateToComposition errors on missing columns", {
         "patient_col"
     )
 })
+
+test_that("aggregateToComposition warns on NA patient/celltype", {
+    skip_if_not_installed("SingleCellExperiment")
+
+    n_cells <- 50L
+    patients <- sample(paste0("P", 1:3), n_cells, replace = TRUE)
+    celltypes <- sample(c("T", "B", "Mono"), n_cells, replace = TRUE)
+    patients[1] <- NA
+    celltypes[2] <- NA
+    counts <- matrix(rpois(n_cells * 5, 5), nrow = 5)
+
+    sce <- SingleCellExperiment::SingleCellExperiment(
+        assays = list(counts = counts),
+        colData = S4Vectors::DataFrame(patient = patients, celltype = celltypes)
+    )
+
+    expect_warning(
+        comp <- aggregateToComposition(sce, patient_col = "patient",
+                                       celltype_col = "celltype"),
+        "NA"
+    )
+    props <- SummarizedExperiment::assay(comp)
+    expect_equal(colSums(props), setNames(rep(1.0, ncol(comp)), colnames(comp)),
+                 tolerance = 1e-12, ignore_attr = TRUE)
+})
