@@ -120,7 +120,7 @@ setMethod("plotSignificance", "TMESplitResult", function(x, ...) {
         level <- c(level, "Level 2")
     }
 
-    prog <- x@programs
+    prog <- as.data.frame(x@programs)
     if (nrow(prog) > 0L && "combined_p" %in% colnames(prog)) {
         for (i in seq_len(nrow(prog))) {
             row <- prog[i, ]

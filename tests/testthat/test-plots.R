@@ -51,3 +51,14 @@ test_that("plotSignificance handles p=1 (no signal)", {
     p <- plotSignificance(res)
     expect_s3_class(p, "ggplot")
 })
+
+test_that("plotSignificance floors zero p-values at 1e-10", {
+    res <- make_mock_result(seed = 42)
+    if (nrow(res@programs) == 0L) skip("no programs in mock")
+    res@programs$combined_p <- 0
+    grDevices::pdf(nullfile())
+    on.exit(grDevices::dev.off(), add = TRUE)
+    p <- plotSignificance(res)
+    expect_s3_class(p, "ggplot")
+    expect_true(all(is.finite(p$data$nlp)))
+})
