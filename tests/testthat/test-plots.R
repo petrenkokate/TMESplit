@@ -62,3 +62,11 @@ test_that("plotSignificance floors zero p-values at 1e-10", {
     expect_s3_class(p, "ggplot")
     expect_true(all(is.finite(p$data$nlp)))
 })
+
+test_that("plotNetwork returns a ggplot", {
+    res <- make_mock_result()
+    grDevices::pdf(nullfile())
+    on.exit(grDevices::dev.off(), add = TRUE)
+    p <- plotNetwork(res)
+    expect_s3_class(p, "ggplot")
+})

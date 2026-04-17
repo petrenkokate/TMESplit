@@ -7,12 +7,16 @@
 \usage{
 plotNetwork(x, ...)
 
-\S4method{plotNetwork}{TMESplitResult}(x, ...)
+\S4method{plotNetwork}{TMESplitResult}(x, top_k = 3L, threshold = 0.3, ...)
 }
 \arguments{
 \item{x}{A \link{TMESplitResult}.}
 
 \item{...}{Extra aesthetics.}
+
+\item{top_k}{Number of top-loading cell types per program to connect.}
+
+\item{threshold}{Minimum normalized loading for an edge.}
 }
 \value{
 A \link[ggplot2:ggplot]{ggplot2::ggplot} object.
