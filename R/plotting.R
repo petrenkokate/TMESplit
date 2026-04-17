@@ -110,7 +110,59 @@ setMethod("plotNetwork", "TMESplitResult", function(x, ...) {
 #' @describeIn plotSignificance Method for [TMESplitResult].
 #' @export
 setMethod("plotSignificance", "TMESplitResult", function(x, ...) {
-    .plot_not_implemented("plotSignificance")
+    labels <- "Global"
+    values <- x@p_value
+    level <- "Level 1"
+
+    for (g in x@groups) {
+        labels <- c(labels, paste0("group: ", g))
+        values <- c(values, x@p_value_per_group[[g]])
+        level <- c(level, "Level 2")
+    }
+
+    prog <- x@programs
+    if (nrow(prog) > 0L && "combined_p" %in% colnames(prog)) {
+        for (i in seq_len(nrow(prog))) {
+            row <- prog[i, ]
+            labels <- c(labels,
+                        paste0(row$group, "/p", row$program_idx))
+            values <- c(values, row$combined_p)
+            level <- c(level, "Level 3")
+        }
+    }
+
+    nlp <- -log10(pmax(values, 1e-10))
+
+    df <- data.frame(
+        label = factor(labels, levels = labels),
+        nlp = nlp,
+        level = factor(level, levels = c("Level 1", "Level 2", "Level 3")),
+        stringsAsFactors = FALSE
+    )
+
+    level_colors <- c("Level 1" = "#2c3e50",
+                      "Level 2" = "#3498db",
+                      "Level 3" = "#e67e22")
+
+    p <- ggplot2::ggplot(df, ggplot2::aes(x = .data$label,
+                                           y = .data$nlp,
+                                           fill = .data$level)) +
+        ggplot2::geom_bar(stat = "identity") +
+        ggplot2::geom_hline(yintercept = -log10(0.05),
+                            color = "red", linetype = "dashed",
+                            linewidth = 0.8) +
+        ggplot2::scale_fill_manual(values = level_colors) +
+        ggplot2::labs(x = NULL,
+                      y = expression(-log[10](p)),
+                      title = "Hierarchical significance",
+                      fill = "Level") +
+        ggplot2::theme_minimal() +
+        ggplot2::theme(
+            axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
+        )
+
+    print(p)
+    invisible(p)
 })
 
 .plot_not_implemented <- function(what) {

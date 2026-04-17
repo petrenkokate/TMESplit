@@ -33,3 +33,21 @@ test_that("plotActivities works with null-specific result", {
     p <- plotActivities(res)
     expect_s3_class(p, "ggplot")
 })
+
+test_that("plotSignificance returns a ggplot", {
+    res <- make_mock_result()
+    grDevices::pdf(nullfile())
+    on.exit(grDevices::dev.off(), add = TRUE)
+    p <- plotSignificance(res)
+    expect_s3_class(p, "ggplot")
+})
+
+test_that("plotSignificance handles p=1 (no signal)", {
+    res <- make_mock_result(k_spec_A = 0L, k_spec_B = 0L)
+    res@p_value <- 1.0
+    res@p_value_per_group <- c(A = 1.0, B = 1.0)
+    grDevices::pdf(nullfile())
+    on.exit(grDevices::dev.off(), add = TRUE)
+    p <- plotSignificance(res)
+    expect_s3_class(p, "ggplot")
+})
