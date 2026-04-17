@@ -13,65 +13,89 @@ vignette: >
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+RUN_PYTHON <- requireNamespace("reticulate", quietly = TRUE) &&
+    tryCatch({
+        proc <- basilisk::basiliskStart(TMESplit:::.tmesplit_env)
+        basilisk::basiliskStop(proc)
+        TRUE
+    }, error = function(e) FALSE)
 ```
 
 # Overview
 
-`TMESplit` provides formal statistical testing for whether cell-type
-coordination structure differs between biological groups (e.g. tumour vs
-normal, responder vs non-responder). It decomposes a patient × cell-type
-composition matrix into shared and group-specific non-negative programs,
-and returns a three-level hierarchy of p-values (global, per-group,
-per-program).
+TMESplit tests whether cell-type coordination structure differs between
+biological groups. Given a patient x cell-type composition matrix with
+group labels, it:
 
-The algorithm is implemented in Python (`TMESplitpy`) and called from R
-via [basilisk](https://bioconductor.org/packages/basilisk), which
-provisions a sandboxed conda environment automatically on first use.
+1. Runs per-group NMF to discover multicellular programs
+2. Matches programs across groups to identify shared vs group-specific ones
+3. Applies a three-level hierarchical permutation test
 
-# Status
+# Quick example
 
-This release (`0.99.0`) is a **pre-release scaffold**. The API surface
-is in place but the algorithmic bodies land in Phase 3.2b. Loading the
-package and inspecting the S4 class work today:
+## Load the toy fixture
 
-```{r}
+```{r load-data}
 library(TMESplit)
 
-res <- new("TMESplitResult")
+f <- system.file("extdata", "toy_composition.rds", package = "TMESplit")
+toy <- readRDS(f)
+str(toy)
+```
+
+## Run TMESplit
+
+```{r run-tmesplit, eval = RUN_PYTHON}
+mat <- rbind(toy$A, toy$B)
+group <- rep(c("A", "B"), c(nrow(toy$A), nrow(toy$B)))
+
+res <- tmesplit(mat, group = group,
+                n_perm = 100, n_runs = 3, seed = 42, verbose = FALSE)
 res
 ```
 
-The toy fixture used for cross-language parity tests ships in
-`inst/extdata`:
+## Inspect results
 
-```{r}
-f <- system.file("extdata", "toy_composition.rds", package = "TMESplit")
-toy <- readRDS(f)
-vapply(toy, dim, integer(2))
+```{r inspect, eval = RUN_PYTHON}
+pvalue(res, "global")
+
+pvalue(res, "group")
+
+programs(res)
 ```
 
-# Planned API
+## Visualize
 
-```r
-library(TMESplit)
+```{r plot-programs, eval = RUN_PYTHON, fig.width = 8, fig.height = 6}
+plotPrograms(res)
+```
+
+```{r plot-activities, eval = RUN_PYTHON, fig.width = 7, fig.height = 4}
+plotActivities(res)
+```
+
+```{r plot-significance, eval = RUN_PYTHON, fig.width = 7, fig.height = 4}
+plotSignificance(res)
+```
+
+```{r plot-network, eval = RUN_PYTHON, fig.width = 7, fig.height = 7}
+plotNetwork(res)
+```
+
+## Using SummarizedExperiment input
+
+```{r se-dispatch, eval = RUN_PYTHON}
 library(SummarizedExperiment)
 
-# (A) SummarizedExperiment (cell-types x patients)
-res <- tmesplit(se, group_col = "condition",
-                beta_loss = 0.5, n_perm = 2000)
+se <- SummarizedExperiment(
+    assays = list(proportions = t(mat)),
+    colData = DataFrame(condition = group)
+)
 
-# (B) SingleCellExperiment: aggregate first
-comp <- aggregateToComposition(sce,
-                               patient_col = "patient_id",
-                               celltype_col = "celltype_L2")
-res <- tmesplit(comp, group_col = "condition")
+res_se <- tmesplit(se, group_col = "condition",
+                   n_perm = 100, n_runs = 3, seed = 42, verbose = FALSE)
 
-# (C) Raw matrix + group vector
-res <- tmesplit(X, group = group_vec, beta_loss = 0.5)
-
-programs(res)           # per-program DataFrame + BH-FDR
-pvalue(res, "global")
-plotPrograms(res)       # ComplexHeatmap
+pvalue(res_se, "global")
 ```
 
 # Session info
