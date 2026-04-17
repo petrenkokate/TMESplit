@@ -83,6 +83,7 @@ setMethod("plotActivities", "TMESplitResult", function(x, ...) {
         group = rep(group_labels, ncol(H)),
         stringsAsFactors = FALSE
     )
+    df$program <- factor(df$program, levels = colnames(H))
 
     p <- ggplot2::ggplot(df, ggplot2::aes(x = .data$program,
                                            y = .data$activity,
