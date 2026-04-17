@@ -245,12 +245,3 @@ setMethod("plotSignificance", "TMESplitResult", function(x, ...) {
     print(p)
     invisible(p)
 })
-
-.plot_not_implemented <- function(what) {
-    stop(
-        what, "() is scaffolded but not yet implemented. ",
-        "Plotting lands in Phase 3.2c; see task_plan.md in the ",
-        "EcoSplit paper repo.",
-        call. = FALSE
-    )
-}
