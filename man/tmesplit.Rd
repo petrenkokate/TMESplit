@@ -46,14 +46,15 @@ Generic entry point. Methods dispatch on the class of \code{object}:
 \section{Methods (by class)}{
 \itemize{
 \item \code{tmesplit(SummarizedExperiment)}: Method for a \link[SummarizedExperiment:RangedSummarizedExperiment-class]{SummarizedExperiment::SummarizedExperiment}.
-The assay is treated as a \verb{cell_types x patients} composition matrix.
+The assay should be a \verb{cell_types x patients} composition matrix.
 
 \item \code{tmesplit(SingleCellExperiment)}: Method for a \link[SingleCellExperiment:SingleCellExperiment]{SingleCellExperiment::SingleCellExperiment}.
 First aggregates to a patient x cell-type composition via
 \link{aggregateToComposition}, then dispatches to the SE method.
 
 \item \code{tmesplit(matrix)}: Method for a raw \code{matrix}. \code{group} must be a vector
-of length \code{ncol(object)} giving group labels.
+of length \code{nrow(object)} giving group labels (rows = patients,
+cols = cell types).
 
 \item \code{tmesplit(data.frame)}: Method for a \code{data.frame}, coerced to a matrix then
 dispatched to the matrix method.
