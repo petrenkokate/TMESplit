@@ -70,3 +70,8 @@ test_that("plotNetwork returns a ggplot", {
     p <- plotNetwork(res)
     expect_s3_class(p, "ggplot")
 })
+
+test_that("plotNetwork errors when all programs are empty", {
+    res <- make_mock_result(k_shared = 0L, k_spec_A = 0L, k_spec_B = 0L)
+    expect_error(plotNetwork(res), "No programs to plot")
+})
