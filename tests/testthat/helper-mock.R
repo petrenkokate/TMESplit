@@ -3,15 +3,18 @@
 
 make_mock_result <- function(
     n_celltypes = 15L, k_shared = 2L, k_spec_A = 1L, k_spec_B = 0L,
-    n_A = 20L, n_B = 20L
+    n_A = 20L, n_B = 20L,
+    seed = NULL
 ) {
+    if (!is.null(seed)) set.seed(seed)
+
     ct_names <- paste0("ct", sprintf("%02d", seq_len(n_celltypes)))
     groups <- c("A", "B")
 
     W_shared <- matrix(runif(n_celltypes * k_shared), nrow = n_celltypes,
                        ncol = k_shared,
                        dimnames = list(ct_names,
-                                       paste0("shared_", seq_len(k_shared))))
+                                       if (k_shared > 0L) paste0("shared_", seq_len(k_shared)) else character(0)))
 
     W_spec_A <- if (k_spec_A > 0L) {
         matrix(runif(n_celltypes * k_spec_A), nrow = n_celltypes,
@@ -35,11 +38,11 @@ make_mock_result <- function(
     H_raw <- matrix(runif(n_total * k_total), nrow = n_total, ncol = k_total)
     H_frac <- H_raw / rowSums(H_raw)
     prog_names <- c(
-        paste0("shared_", seq_len(k_shared)),
+        if (k_shared > 0L) paste0("shared_", seq_len(k_shared)) else character(0),
         if (k_spec_A > 0) paste0("A_", seq_len(k_spec_A)),
         if (k_spec_B > 0) paste0("B_", seq_len(k_spec_B))
     )
-    pat_names <- c(paste0("A_p", seq_len(n_A)), paste0("B_p", seq_len(n_B)))
+    pat_names <- c(if (n_A > 0L) paste0("A_p", seq_len(n_A)) else character(0), if (n_B > 0L) paste0("B_p", seq_len(n_B)) else character(0))
     dimnames(H_frac) <- list(pat_names, prog_names)
 
     group_vec <- rep(groups, c(n_A, n_B))
