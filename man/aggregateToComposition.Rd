@@ -27,7 +27,7 @@ Aggregate a SingleCellExperiment to a patient x cell-type composition
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{aggregateToComposition(SingleCellExperiment)}: Default method for
+\item \code{aggregateToComposition(SingleCellExperiment)}: Method for
 \link[SingleCellExperiment:SingleCellExperiment]{SingleCellExperiment::SingleCellExperiment}.
 
 }}
