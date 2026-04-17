@@ -69,6 +69,7 @@ setMethod(
 .run_tmesplit <- function(mat, group_vec, cell_type_names = NULL,
                           call_ = NULL,
                           beta_loss = 0.5,
+                          recon_threshold = 0.04,
                           n_perm = 2000L,
                           n_runs = 10L,
                           n_perm_runs = 3L,
@@ -94,6 +95,7 @@ setMethod(
             freq_dict = freq_py,
             cell_type_names = as.list(cell_type_names),
             beta_loss = beta_loss,
+            recon_threshold = recon_threshold,
             n_runs = as.integer(n_runs),
             seed = as.integer(seed),
             verbose = verbose,
@@ -106,6 +108,7 @@ setMethod(
             n_perm = as.integer(n_perm),
             n_runs = as.integer(n_perm_runs),
             beta_loss = beta_loss,
+            recon_threshold = recon_threshold,
             combiners = combiners,
             rerank_in_perm = rerank_in_perm,
             n_jobs = as.integer(n_jobs),
@@ -231,6 +234,6 @@ setMethod(
             n_perm = as.integer(perm$n_perm),
             primary_combiner = as.character(perm$primary_combiner),
             beta_loss = beta_loss,
-            group_labels = group_vec
+            group_labels = rep(groups, times = vapply(H_parts, nrow, integer(1)))
         ))
 }
