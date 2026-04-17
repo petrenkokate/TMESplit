@@ -73,8 +73,8 @@ test_that("matrix method validates group length", {
 test_that("data.frame method coerces to matrix", {
     df <- data.frame(a = 1:3, b = 4:6)
     expect_error(
-        tmesplit(df, group = c("X", "X", "Y")),
-        "basilisk|reticulate|tmesplit"
+        tmesplit(df, group = c("X", "X")),
+        "length\\(group\\) must equal nrow"
     )
 })
 
