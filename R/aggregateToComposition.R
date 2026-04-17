@@ -19,7 +19,7 @@ setMethod(
             n_na <- sum(is.na(patients) | is.na(celltypes))
             warning("Found ", n_na, " cell(s) with NA in '", patient_col,
                     "' or '", celltype_col,
-                    "' — these cells are excluded from the composition.",
+                    "' -- these cells are excluded from the composition.",
                     call. = FALSE)
             keep <- !is.na(patients) & !is.na(celltypes)
             patients <- patients[keep]

@@ -1,5 +1,5 @@
 #' @importFrom methods setClass setGeneric setMethod new slotNames validObject
-#'   is as
+#'   is as show
 #' @importFrom utils packageVersion
 #' @importFrom basilisk BasiliskEnvironment basiliskStart basiliskStop
 #'   basiliskRun

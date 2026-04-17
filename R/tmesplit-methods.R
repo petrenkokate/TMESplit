@@ -120,11 +120,11 @@ setMethod(
     })
 
     .hydrate_result(result$eco, result$perm, groups, group_vec,
-                    cell_type_names, call_)
+                    cell_type_names, call_, beta_loss)
 }
 
 .hydrate_result <- function(eco, perm, groups, group_vec,
-                            cell_type_names, call_) {
+                            cell_type_names, call_, beta_loss) {
     k_shared <- as.integer(eco$k_shared)
 
     k_specific_list <- eco$k_specific
