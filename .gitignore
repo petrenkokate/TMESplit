@@ -3,6 +3,7 @@
 .RData
 .Ruserdata
 *.Rcheck/
+*.BiocCheck/
 src/*.o
 src/*.so
 src/*.dll
