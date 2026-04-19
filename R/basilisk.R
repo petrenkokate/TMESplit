@@ -1,9 +1,8 @@
 #' Basilisk environment for TMESplit
 #'
-#' Sandboxed conda env containing `tmesplitpy` (installed from its GitHub
-#' `main` branch during Phase 3.2 development; will switch to a pinned
-#' PyPI version for Bioconductor submission). Users never interact with
-#' this directly — [tmesplit()] and friends call it via
+#' Sandboxed conda env containing `tmesplitpy`, installed from the
+#' vendored source tree at `inst/python/tmesplitpy/`. Users never
+#' interact with this directly -- [tmesplit()] and friends call it via
 #' [basilisk::basiliskRun].
 #'
 #' @keywords internal
@@ -21,9 +20,7 @@
         "numba=0.60",
         "joblib=1.4"
     ),
-    pip = c(
-        "tmesplitpy @ git+https://github.com/petrenkokate/TMESplitpy.git@main"
-    )
+    paths = "python/tmesplitpy"
 )
 
 #' Run a function inside the TMESplit basilisk env

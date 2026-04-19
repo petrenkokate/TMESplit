@@ -1,3 +1,13 @@
+# TMESplit 0.99.1
+
+* Vendor the `tmesplitpy` Python source into `inst/python/tmesplitpy/`
+  and install it via `basilisk::BasiliskEnvironment(paths = ...)`
+  instead of a `pip` git URL. The old `pip = "tmesplitpy @ git+..."`
+  spec was rejected by `basilisk:::.check_versions()` (which requires
+  every `pip` entry be pinned with `==version`), so no end user could
+  provision the env. Will switch back to a pinned PyPI release once
+  `tmesplitpy` is published there.
+
 # TMESplit 0.99.0
 
 * Initial pre-release (Bioconductor convention).

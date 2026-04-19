@@ -1,6 +1,6 @@
 Package: TMESplit
 Title: Formal Testing of Group-Specific Multicellular Coordination Programs
-Version: 0.99.0
+Version: 0.99.1
 Authors@R: c(
     person("Kate", "Petrenko", email = "katepetrenko.y@gmail.com",
            role = c("aut", "cre")))
