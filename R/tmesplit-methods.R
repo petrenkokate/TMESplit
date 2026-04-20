@@ -120,11 +120,13 @@ setMethod(
     })
 
     .hydrate_result(result$eco, result$perm, groups, group_vec,
-                    cell_type_names, call_, beta_loss)
+                    cell_type_names, call_, beta_loss,
+                    freq_dict = freq_dict)
 }
 
 .hydrate_result <- function(eco, perm, groups, group_vec,
-                            cell_type_names, call_, beta_loss) {
+                            cell_type_names, call_, beta_loss,
+                            freq_dict = NULL) {
     k_shared <- as.integer(eco$k_shared)
 
     k_specific_list <- eco$k_specific
@@ -149,40 +151,38 @@ setMethod(
         w
     })
 
+    shared_labs <- if (k_shared > 0L)
+        paste0("shared_", seq_len(k_shared)) else character(0)
+
     H_parts <- list()
-    pat_names <- character(0)
+    sample_names_per <- list()
     for (g in groups) {
         Hg <- as.matrix(eco$H_fractions[[g]])
-        rn <- paste0(g, "_p", seq_len(nrow(Hg)))
-        rownames(Hg) <- rn
-        H_parts[[g]] <- Hg
-        pat_names <- c(pat_names, rn)
-    }
-    k_total_per <- vapply(H_parts, ncol, integer(1))
-    max_k <- max(k_total_per)
-    H_padded <- lapply(H_parts, function(h) {
-        if (ncol(h) < max_k) {
-            cbind(h, matrix(0, nrow = nrow(h), ncol = max_k - ncol(h)))
+        if (!is.null(freq_dict) && !is.null(rownames(freq_dict[[g]]))) {
+            sample_labs <- rownames(freq_dict[[g]])
         } else {
-            h
+            sample_labs <- paste0(g, "_s", seq_len(nrow(Hg)))
         }
-    })
-    H_fractions <- do.call(rbind, H_padded)
-    prog_names <- character(max_k)
-    idx <- 1L
-    if (k_shared > 0L) {
-        prog_names[idx:(idx + k_shared - 1L)] <-
-            paste0("shared_", seq_len(k_shared))
-        idx <- idx + k_shared
+        rownames(Hg) <- sample_labs
+        ks <- as.integer(k_specific[[g]])
+        spec_labs <- if (ks > 0L) paste0(g, "_", seq_len(ks)) else character(0)
+        colnames(Hg) <- c(shared_labs, spec_labs)
+        H_parts[[g]] <- Hg
+        sample_names_per[[g]] <- sample_labs
     }
-    for (g in groups) {
-        ks <- k_specific[[g]]
-        if (ks > 0L) {
-            prog_names[idx:(idx + ks - 1L)] <- paste0(g, "_", seq_len(ks))
-            idx <- idx + ks
+    H_fractions <- H_parts
+
+    composition <- NULL
+    if (!is.null(freq_dict)) {
+        comp_parts <- list()
+        for (g in groups) {
+            Xg <- as.matrix(freq_dict[[g]])
+            rownames(Xg) <- sample_names_per[[g]]
+            colnames(Xg) <- cell_type_names
+            comp_parts[[g]] <- Xg
         }
+        composition <- do.call(rbind, comp_parts)
     }
-    colnames(H_fractions) <- prog_names
 
     p_value <- as.numeric(perm$p_value)
 
@@ -234,6 +234,9 @@ setMethod(
             n_perm = as.integer(perm$n_perm),
             primary_combiner = as.character(perm$primary_combiner),
             beta_loss = beta_loss,
-            group_labels = rep(groups, times = vapply(H_parts, nrow, integer(1)))
+            group_labels = rep(groups,
+                               times = vapply(H_parts, nrow, integer(1))),
+            sample_names = unlist(sample_names_per, use.names = FALSE),
+            composition = composition
         ))
 }

@@ -7,16 +7,32 @@
 \usage{
 plotNetwork(x, ...)
 
-\S4method{plotNetwork}{TMESplitResult}(x, top_k = 3L, threshold = 0.3, ...)
+\S4method{plotNetwork}{TMESplitResult}(
+  x,
+  top_k = 5L,
+  threshold = 0.1,
+  edge_scale = 3,
+  node_scale = 1,
+  seed = 0L,
+  ...
+)
 }
 \arguments{
 \item{x}{A \link{TMESplitResult}.}
 
 \item{...}{Extra aesthetics.}
 
-\item{top_k}{Number of top-loading cell types per program to connect.}
+\item{top_k}{Number of top-loading cell types per program considered for
+edges. Default \code{5}.}
 
-\item{threshold}{Minimum normalized loading for an edge.}
+\item{threshold}{Minimum L2-normalised loading for a cell type to
+participate in an edge from that program. Default \code{0.1}.}
+
+\item{edge_scale}{Multiplier for edge thickness (default \code{3}).}
+
+\item{node_scale}{Multiplier for node size (default \code{1}).}
+
+\item{seed}{Random seed for the layout.}
 }
 \value{
 A \link[ggplot2:ggplot]{ggplot2::ggplot} object.
@@ -26,7 +42,25 @@ Plot program co-occurrence / cell-type network
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{plotNetwork(TMESplitResult)}: Method for \link{TMESplitResult}.
+\item \code{plotNetwork(TMESplitResult)}: Method for \link{TMESplitResult}. Draws a
+Fruchterman-Reingold force-directed graph of cell types.
+
+\strong{Nodes} are cell types; node color = the cell type's dominant
+program (the column of the normalised
+\verb{[W_shared | W_specific_by_group]} matrix where it has its highest
+loading). \strong{Edges} encode \emph{co-loading on the same program}: for each
+program column, the top-\code{top_k} cell types are enumerated; every pair
+whose L2-normalised loadings are both at least \code{threshold} receives an
+edge weighted by \code{min(loading_a, loading_b)}. Same-program edges are
+up-weighted 2x in the layout so clusters separate spatially while
+cross-program co-loadings remain visible as bridges.
+
+If real-data programs concentrate on one or two cell types (common in
+sparse TME compositions), raising \code{top_k} rarely helps — lower
+\code{threshold} instead (e.g., \code{0.05}–\code{0.15}) to expose secondary
+contributors. The default \code{threshold = 0.1} was tuned for real-data
+diffuse programs; simulations with sharper per-program concentration
+tolerate \code{0.2}–\code{0.3}.
 
 }}
 \examples{

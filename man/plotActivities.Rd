@@ -7,12 +7,31 @@
 \usage{
 plotActivities(x, ...)
 
-\S4method{plotActivities}{TMESplitResult}(x, ...)
+\S4method{plotActivities}{TMESplitResult}(
+  x,
+  test_method = c("wilcoxon", "t", "kruskal"),
+  pvalue_format = "\%.3f",
+  bracket_fraction = 0.015,
+  ...
+)
 }
 \arguments{
 \item{x}{A \link{TMESplitResult}.}
 
 \item{...}{Extra aesthetics.}
+
+\item{test_method}{Test used for between-group comparison of \emph{shared}
+program activities. One of \code{"wilcoxon"} (default, G=2),
+\code{"t"} (Welch t-test, G=2), or \code{"kruskal"} (forced for G>=3 regardless).
+Group-specific programs cannot be tested between groups (only one
+group carries loadings), so they fall back to the Level 3
+\code{combined_p} from the permutation test and get a \code{(L3)} marker.}
+
+\item{pvalue_format}{\code{sprintf} format string for p-values. Default
+\code{"\%.3f"}.}
+
+\item{bracket_fraction}{Height of the bracket tick as a fraction of
+the y-axis range. Default \code{0.015}.}
 }
 \value{
 A \link[ggplot2:ggplot]{ggplot2::ggplot} object.

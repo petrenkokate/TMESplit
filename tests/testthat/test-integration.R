@@ -27,7 +27,7 @@ test_that("tmesplit() matrix method returns valid TMESplitResult", {
     expect_s4_class(res, "TMESplitResult")
     expect_true(res@k_shared >= 0L)
     expect_equal(length(res@groups), 2L)
-    expect_equal(nrow(hFractions(res)), nrow(mat))
+    expect_equal(sum(vapply(hFractions(res), nrow, integer(1))), nrow(mat))
     expect_true(res@p_value >= 0 && res@p_value <= 1)
 })
 

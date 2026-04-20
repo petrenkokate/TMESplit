@@ -7,12 +7,39 @@
 \usage{
 plotPrograms(x, ...)
 
-\S4method{plotPrograms}{TMESplitResult}(x, ...)
+\S4method{plotPrograms}{TMESplitResult}(
+  x,
+  scale = TRUE,
+  top_n = NULL,
+  transpose = FALSE,
+  program_names = NULL,
+  cluster_rows = TRUE,
+  cluster_columns = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{A \link{TMESplitResult}.}
 
 \item{...}{Passed to \link[ComplexHeatmap:Heatmap]{ComplexHeatmap::Heatmap}.}
+
+\item{scale}{Logical; z-score each row (cell type) across programs before
+plotting. Default \code{TRUE}.}
+
+\item{top_n}{Integer or \code{NULL}; if set, keep the union of each program's
+top-\code{top_n} loading cell types (matches the CoVarNet/6_TIME reference
+pattern). Default \code{NULL} keeps all rows.}
+
+\item{transpose}{Logical; swap axes so programs become rows and cell types
+become columns. Default \code{FALSE}.}
+
+\item{program_names}{Named list overriding program column labels. Keys are
+\code{"shared"} and each group name; values are character vectors matching the
+number of programs in that block. Unset keys fall back to
+\verb{shared_<i>} / \verb{<group>_<i>}.}
+
+\item{cluster_rows, cluster_columns}{Logical; passed through to the
+underlying \link[ComplexHeatmap:Heatmap]{ComplexHeatmap::Heatmap}. Both \code{TRUE} by default.}
 }
 \value{
 A \link[ComplexHeatmap:Heatmap]{ComplexHeatmap::Heatmap} object (invisibly), drawn as a side

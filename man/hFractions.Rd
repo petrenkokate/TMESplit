@@ -13,7 +13,8 @@ hFractions(x)
 \item{x}{A \link{TMESplitResult}.}
 }
 \value{
-A numeric matrix of shape \verb{n_patients x k_total}; rows sum to 1.
+Named list of per-group H matrices
+(\verb{n_patients_g x (k_shared + k_specific_g)}); rows sum to 1.
 }
 \description{
 Accessor: patient-level program activities (soft assignment)

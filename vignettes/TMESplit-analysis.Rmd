@@ -117,16 +117,51 @@ for (g in names(W_sp)) {
 
 # Visualization gallery
 
+All plot functions use the shared `tme_palette` / `tme_diverging` constants;
+override via each function's own arguments or by replacing palette entries
+directly.
+
 ## Program loadings
 
+`plotPrograms()` now exposes `scale`, `top_n`, `transpose`, and per-group
+`program_names`. Rows and columns are clustered with Ward.D2 by default.
+
 ```{r viz-programs, eval = RUN_PYTHON, fig.width = 10, fig.height = 8}
-plotPrograms(res)
+plotPrograms(res, top_n = 12)
 ```
 
 ## Patient activities
 
-```{r viz-activities, eval = RUN_PYTHON, fig.width = 8, fig.height = 5}
-plotActivities(res)
+`plotActivities()` annotates each shared program with a bracket and a
+between-group p-value (Wilcoxon by default; `"t"` and `"kruskal"` are
+opt-in; Kruskal-Wallis is forced for G >= 3). Group-specific programs
+cannot be tested between groups, so they fall back to the Level 3
+`combined_p` from `programs(res)` with a `(L3)` marker.
+
+```{r viz-activities, eval = RUN_PYTHON, fig.width = 9, fig.height = 5}
+plotActivities(res, test_method = "wilcoxon")
+```
+
+## Sample x cell-type composition
+
+`plotSampleHeatmap()` draws a samples-by-cell-types heatmap split on
+columns by each sample's dominant program (argmax over `H_fractions`)
+and on rows by each cell type's dominant program (argmax over the
+concatenated `[W_shared | W_specific]` matrix). The default layout is
+diagonal — no clustering — so the program structure is immediately
+visible. Pass `cluster_samples = TRUE` / `cluster_cell_types = TRUE` to
+opt back into Ward.D2 clustering within each slice.
+
+```{r viz-sample-heatmap, eval = RUN_PYTHON, fig.width = 10, fig.height = 7}
+samples <- rownames(res@metadata$composition)
+annotations <- data.frame(
+    Condition = rep(c("Ctrl", "Treat"), length.out = length(samples)),
+    row.names = samples
+)
+annotation_colors <- list(Condition = c(Ctrl = "#154999", Treat = "#CF0034"))
+plotSampleHeatmap(res,
+                  annotations = annotations,
+                  annotation_colors = annotation_colors)
 ```
 
 ## Significance overview
@@ -135,10 +170,22 @@ plotActivities(res)
 plotSignificance(res)
 ```
 
-## Cell-type network
+## Cell-type co-loading network
+
+`plotNetwork()` is a Fruchterman-Reingold force-directed graph.
+**Nodes** are cell types coloured by their dominant program (argmax of
+normalized `[W_shared | W_specific]`). **Edges** encode co-loading: for
+each program column the top-`top_k` cell types are enumerated and every
+pair whose normalized loadings both exceed `threshold` gets an edge
+weighted by `min(loading_a, loading_b)`. Same-program edges are
+up-weighted 2x in the layout so program clusters separate spatially.
+
+For diffuse real-data compositions the default `threshold = 0.1` is a
+good starting point. Simulation-like data with sharp per-program
+concentration tolerates `0.2`-`0.3`.
 
 ```{r viz-network, eval = RUN_PYTHON, fig.width = 7, fig.height = 7}
-plotNetwork(res)
+plotNetwork(res, top_k = 5, threshold = 0.1)
 ```
 
 # Parameter guidance

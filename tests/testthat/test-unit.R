@@ -40,9 +40,12 @@ test_that("accessors return correct types on mock result", {
     expect_equal(ncol(wSpecific(res)$A), 1L)
     expect_equal(ncol(wSpecific(res)$B), 0L)
 
-    expect_true(is.matrix(hFractions(res)))
-    expect_equal(nrow(hFractions(res)), 40L)
-    expect_equal(ncol(hFractions(res)), 3L)
+    expect_type(hFractions(res), "list")
+    expect_named(hFractions(res), c("A", "B"))
+    expect_equal(nrow(hFractions(res)$A), 20L)
+    expect_equal(nrow(hFractions(res)$B), 20L)
+    expect_equal(ncol(hFractions(res)$A), 3L)
+    expect_equal(ncol(hFractions(res)$B), 2L)
 })
 
 test_that("pvalue() level validation works", {
@@ -92,5 +95,6 @@ test_that("mock result with no specific programs", {
     res <- make_mock_result(k_spec_A = 0L, k_spec_B = 0L)
     expect_equal(res@k_specific, c(A = 0L, B = 0L))
     expect_equal(nrow(programs(res)), 0L)
-    expect_equal(ncol(hFractions(res)), 2L)
+    expect_equal(ncol(hFractions(res)$A), 2L)
+    expect_equal(ncol(hFractions(res)$B), 2L)
 })

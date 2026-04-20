@@ -77,7 +77,8 @@ setGeneric("wSpecific", function(x) standardGeneric("wSpecific"))
 
 #' Accessor: patient-level program activities (soft assignment)
 #' @param x A [TMESplitResult].
-#' @return A numeric matrix of shape `n_patients x k_total`; rows sum to 1.
+#' @return Named list of per-group H matrices
+#'   (`n_patients_g x (k_shared + k_specific_g)`); rows sum to 1.
 #' @examples
 #' res <- new("TMESplitResult")
 #' hFractions(res)
@@ -117,6 +118,24 @@ setGeneric("plotActivities",
 #' @export
 setGeneric("plotNetwork",
            function(x, ...) standardGeneric("plotNetwork"))
+
+#' Plot per-sample composition heatmap split by dominant program
+#'
+#' Samples (rows) x cell types (columns) composition heatmap, z-scored per
+#' cell type, with samples grouped by their dominant program (hard
+#' assignment from `H_fractions`).
+#'
+#' @param x A [TMESplitResult].
+#' @param ... Extra aesthetics.
+#' @return A [ComplexHeatmap::Heatmap] object (invisibly), drawn as a side
+#'   effect.
+#' @examples
+#' res <- new("TMESplitResult")
+#' tryCatch(plotSampleHeatmap(res),
+#'          error = function(e) message(conditionMessage(e)))
+#' @export
+setGeneric("plotSampleHeatmap",
+           function(x, ...) standardGeneric("plotSampleHeatmap"))
 
 #' Plot significance (permutation null vs observed)
 #' @param x A [TMESplitResult].

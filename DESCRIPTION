@@ -1,6 +1,6 @@
 Package: TMESplit
 Title: Formal Testing of Group-Specific Multicellular Coordination Programs
-Version: 0.99.1
+Version: 0.99.2
 Authors@R: c(
     person("Kate", "Petrenko", email = "katepetrenko.y@gmail.com",
            role = c("aut", "cre")))
@@ -36,7 +36,11 @@ Imports:
     utils,
     ggplot2,
     ComplexHeatmap,
-    grid
+    circlize,
+    grid,
+    grDevices,
+    stats,
+    igraph
 Suggests:
     testthat (>= 3.0.0),
     knitr,

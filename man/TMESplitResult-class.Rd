@@ -23,8 +23,9 @@ per-group, and per-program levels.
 
 \item{\code{W_specific}}{A named list of group-specific W matrices, one per group.}
 
-\item{\code{H_fractions}}{A numeric matrix of patient-level program activities
-(\verb{n_patients x k_total}), rows sum to 1 (soft assignment).}
+\item{\code{H_fractions}}{Named list of per-group H matrices
+(\verb{n_patients_g x (k_shared + k_specific_g)}); each row sums to 1
+(soft assignment). Shared programs occupy the first \code{k_shared} columns.}
 
 \item{\code{programs}}{A \link[S4Vectors:DataFrame-class]{S4Vectors::DataFrame} with one row per program
 (shared and specific) containing combined p-values and BH-FDR.}
